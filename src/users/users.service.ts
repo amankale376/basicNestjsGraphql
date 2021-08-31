@@ -5,10 +5,9 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 
-import * as jwt from 'jsonwebtoken';
+
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
@@ -32,9 +31,9 @@ export class UsersService {
       if (!user) {
         throw new NotFoundException('User not found!');
       }
-      const token = this.generateToken(user.id);
+
       return {
-        message: token,
+        message: 'You are logged in',
       };
     } catch (error) {
       throw new BadRequestException(error);
@@ -47,7 +46,7 @@ export class UsersService {
       if (check) {
         throw new ForbiddenException('username is not Available');
       }
-      const newuser = this.userRepository.create(body)
+      const newuser = this.userRepository.create(body);
       const user = await this.userRepository.save(newuser);
       return user;
     } catch (error) {
@@ -55,10 +54,9 @@ export class UsersService {
     }
   }
 
-  async deleteUser(Token): Promise<MessageReturnDto> {
-    await this.getMatch(Token);
+  async deleteUser(id: number): Promise<MessageReturnDto> {
     try {
-      const deleteUser = await this.userRepository.delete({ id: Token.id });
+      const deleteUser = await this.userRepository.delete({ id: id });
       if (deleteUser) {
         return {
           message: 'user is deleted',
@@ -69,8 +67,7 @@ export class UsersService {
     }
   }
 
-  async listUsers(Token, query: QueryDto): Promise<UserReturnDto[]> {
-    await this.getMatch(Token);
+  async listUsers(query: QueryDto): Promise<UserReturnDto[]> {
     const page = query.page || 1;
     const limit = query.limit || 5;
     const skip = (page - 1) * limit;
@@ -91,11 +88,10 @@ export class UsersService {
     }
   }
 
-  async getUser(Token): Promise<UserReturnDto> {
-    await this.getMatch(Token);
+  async getUser(id: number): Promise<UserReturnDto> {
     try {
       const user = await this.userRepository.findOne({
-        where: { id: Token.id },
+        where: { id: id },
         select: ['name', 'username', 'email'],
       });
       if (user) {
@@ -106,25 +102,10 @@ export class UsersService {
     }
   }
 
-  private async getMatch(Token) {
-    try {
-      const match = await this.userRepository.findOne({
-        where: { id: Token.id },
-      });
-      if (match) {
-        return match;
-      }
-      throw new UnauthorizedException('Authentication Failed');
-    } catch (error) {}
-  }
-
   private async checkDuplicate(body: any) {
     const match = await this.userRepository.findOne({
       where: { username: body.username },
     });
     return match;
-  }
-  private generateToken(id: any) {
-    return jwt.sign({ id: id }, process.env.SECRET, { expiresIn: '1hr' });
   }
 }

@@ -6,7 +6,6 @@ import { SignupDto } from './dto/signup.dto';
 import { UserReturnDto } from './dto/user.return.dto';
 import { MessageBack, User, UserBack } from './user.entity';
 import { UsersService } from './users.service';
-import { Token } from './token.decorator';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 @Resolver((of) => User || MessageBack || UserBack)
@@ -27,21 +26,17 @@ export class UsersResolver {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   @Mutation((returns) => MessageBack)
-  DeleteUser(@Token() token): Promise<MessageReturnDto> {
-    console.log(token);
-    return this.userService.deleteUser(token);
+  DeleteUser(@Args('id') id: number): Promise<MessageReturnDto> {
+    return this.userService.deleteUser(id);
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   @Query((returns) => [UserBack])
-  ListUsers(
-    @Args('input') input: QueryDto,
-    @Token() token,
-  ): Promise<UserReturnDto[]> {
-    return this.userService.listUsers(input, token);
+  ListUsers(@Args('input') input: QueryDto): Promise<UserReturnDto[]> {
+    return this.userService.listUsers(input);
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   @Query((returns) => UserBack)
-  GetUser(@Token() token): Promise<UserReturnDto> {
-    return this.userService.getUser(token);
+  GetUser(@Args('id') id: number): Promise<UserReturnDto> {
+    return this.userService.getUser(id);
   }
 }
