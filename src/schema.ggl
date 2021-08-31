@@ -1,0 +1,49 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type User {
+  id: Int!
+  username: String!
+  name: String!
+  email: String!
+  password: String!
+}
+
+type MessageBack {
+  message: String!
+}
+
+type UserBack {
+  name: String!
+  username: String!
+  email: String!
+}
+
+type Query {
+  Login(loginInput: LoginDto!): MessageBack!
+  ListUsers(input: QueryDto!): [UserBack!]!
+  GetUser: UserBack!
+}
+
+input LoginDto {
+  username: String!
+  password: String!
+}
+
+input QueryDto {
+  limit: Float
+  page: Float
+}
+
+type Mutation {
+  SignUp(SignupInput: SignupDto!): User!
+  DeleteUser: MessageBack!
+}
+
+input SignupDto {
+  name: String!
+  username: String!
+  email: String!
+  password: String!
+}
